@@ -1,0 +1,27 @@
+name: Telegram Notification
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+    build:
+      name: Build
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@master
+        
+        # Request
+        - name: Telegram Notify request
+          if: ${{ github.event_name == 'pull_request' }}
+          uses: appleboy/telegram-action@v0.1.1
+          with:
+           to: ${{ secrets.TELEGRAM_TO }}
+           token: ${{ secrets.TELEGRAM_TOKEN }}
+           args: User ${{github.actor}} in ${{ github.repository }} repository made ${{ github.event_name }}. Job ${{github.job}} URL - "${{ github.event.pull_request.title }} --> ${{ github.event.pull_request.html_url }}"
+
+        # Push  
+        - name: Telegram Notify push
+          if: ${{ github.event_name == 'push' }}
+          uses: appleboy/telegram-action@v0.1.1
+          with:
+            to: ${{ secrets.TELEGRAM_TO }}
+            token: ${{ secrets.TELEGRAM_TOKEN }}
+            args: User ${{github.actor}} in ${{ github.repository }} repository made ${{ github.event_name }}. Job ${{github.job}} URL - "${{ github.event.head_commit.message }} --> ${{ github.event.head_commit.url }}"
